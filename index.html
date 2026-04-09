@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>VietVoyage - Discover Vietnam</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --text-white: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.65);
+      --text-subtle: rgba(255, 255, 255, 0.45);
+      --accent-warm: #f59e0b;
+      --border: rgba(255, 255, 255, 0.12);
+      --glass: rgba(15, 30, 50, 0.45);
+      --glass-strong: rgba(10, 20, 40, 0.65);
+      --radius: 16px;
+      --chat-mobile-vh: 100dvh;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      background: #0f2b3c;
+    }
+
+    html.chat-open-mobile {
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    body.chat-open-mobile {
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
+
+    /* ═══════ ẢNH NỀN FULL PAGE — fixed, phủ toàn bộ ═══════ */
+    .page-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .page-bg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .page-bg-placeholder {
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(135deg,
+          #0f2b3c 0%, #1a4a6a 20%, #4a8eab 40%,
+          #7ec4d4 55%, #a8d8e8 65%, #c9e5f0 75%,
+          #dce8e0 85%, #2a5040 100%);
+    }
+
+    .page-bg::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background:
+        linear-gradient(180deg,
+          rgba(8, 18, 35, 0.35) 0%,
+          rgba(8, 18, 35, 0.10) 25%,
+          rgba(8, 18, 35, 0.15) 50%,
+          rgba(8, 18, 35, 0.55) 75%,
+          rgba(8, 18, 35, 0.80) 100%);
+    }
+
+    /* ═══════ MÂY TRANG TRÍ ═══════ */
+    .cloud-deco {
+      position: fixed;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .cloud-left {
+      left: -80px;
+      bottom: 5%;
+      width: 360px;
+      height: 260px;
+      background: radial-gradient(ellipse at 60% 70%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.4) 40%, transparent 70%);
+      filter: blur(18px);
+      border-radius: 50%;
+    }
+
+    .cloud-left-2 {
+      left: -40px;
+      bottom: 15%;
+      width: 250px;
+      height: 180px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.2) 50%, transparent 75%);
+      filter: blur(14px);
+      border-radius: 50%;
+    }
+
+    .cloud-right {
+      right: -80px;
+      bottom: 5%;
+      width: 380px;
+      height: 280px;
+      background: radial-gradient(ellipse at 40% 70%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.35) 40%, transparent 70%);
+      filter: blur(20px);
+      border-radius: 50%;
+    }
+
+    .cloud-right-2 {
+      right: -20px;
+      bottom: 18%;
+      width: 220px;
+      height: 160px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.15) 50%, transparent 75%);
+      filter: blur(12px);
+      border-radius: 50%;
+    }
+
+    /* ═══════ CONTENT LAYER — mọi thứ nổi trên ảnh nền ═══════ */
+    .content-layer {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      backdrop-filter: blur(16px);
+      background: rgba(10, 20, 40, 0.35);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.3s;
+      position: relative;
+      padding-bottom: 6px;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--text-white);
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--text-white);
+      border-radius: 1px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-location {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .nav-location svg {
+      width: 15px;
+      height: 15px;
+      opacity: 0.7;
+    }
+
+    .btn-register {
+      padding: 7px 20px;
+      border: 1.5px solid var(--text-white);
+      border-radius: 24px;
+      background: transparent;
+      color: var(--text-white);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    .btn-register:hover {
+      background: var(--text-white);
+      color: #0b1a2b;
+    }
+
+    .nav-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-white);
+      cursor: pointer;
+    }
+
+    /* ── HERO ── */
+    .hero-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 24px 20px;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 680px;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, 0.3);
+      animation: fadeUp 0.7s ease-out both;
+    }
+
+    .hero-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      animation: fadeUp 0.7s 0.12s ease-out both;
+    }
+
+    .search-tabs {
+      display: flex;
+      background: var(--glass-strong);
+      border-radius: 40px;
+      padding: 5px;
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      animation: fadeUp 0.7s 0.24s ease-out both;
+    }
+
+    .search-tab {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 24px;
+      border-radius: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    .search-tab svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .search-tab.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-white);
+    }
+
+    .search-tab:hover:not(.active) {
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* ── HOTELS ── */
+    .hotels-section {
+      flex-shrink: 0;
+      padding: 0 48px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .section-location {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .section-location svg {
+      width: 13px;
+      height: 13px;
+      opacity: 0.7;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      animation: fadeUp 0.6s ease-out both;
+    }
+
+    .card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 0.26s;
+    }
+
+    .card:nth-child(4) {
+      animation-delay: 0.34s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.35);
+    }
+
+    .card-image {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .card:hover .card-image img {
+      transform: scale(1.06);
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #2a4a3e 0%, #3d6b5a 50%, #5a8f7a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      padding: 4px 9px;
+      border-radius: 7px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .card-badge svg {
+      width: 11px;
+      height: 11px;
+      color: var(--accent-warm);
+    }
+
+    .card-fav {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .card-fav:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .card-fav svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-white);
+    }
+
+    .card-body {
+      padding: 14px 16px 16px;
+    }
+
+    .card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .card-tag {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .card-tag svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0.6;
+    }
+
+    .card-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .card-price span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    /* ── PARTNERS ── */
+    .partners {
+      flex-shrink: 0;
+      padding: 28px 48px 32px;
+      border-top: 1px solid var(--border);
+      margin-top: 28px;
+    }
+
+    .partners-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 56px;
+      flex-wrap: wrap;
+    }
+
+    .partner {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-subtle);
+      letter-spacing: -0.5px;
+      transition: color 0.3s;
+      cursor: default;
+    }
+
+    .partner:hover {
+      color: var(--text-muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ═══════ CHAT WIDGET ═══════ */
+    .chat-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(15, 30, 50, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: bubblePulse 3s ease-in-out infinite;
+    }
+
+    .chat-bubble:hover {
+      transform: scale(1.08);
+      background: rgba(15, 30, 50, 0.85);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    .chat-bubble svg {
+      width: 24px;
+      height: 24px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .chat-bubble-label {
+      display: none;
+    }
+
+    .chat-bubble.open {
+      animation: none;
+    }
+
+    @keyframes bubblePulse {
+
+      0%,
+      100% {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 8px rgba(255, 255, 255, 0.06);
+      }
+    }
+
+    .chat-window {
+      position: fixed;
+      bottom: 90px;
+      right: 24px;
+      z-index: 9998;
+      width: 380px;
+      height: 520px;
+      border-radius: var(--radius);
+      background: rgba(12, 24, 44, 0.88);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+      animation: chatSlideUp 0.3s ease-out;
+      overscroll-behavior: contain;
+    }
+
+    .chat-window.open {
+      display: flex;
+    }
+
+    @keyframes chatSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-top {
+      flex-shrink: 0;
+      background: linear-gradient(180deg, rgba(10, 20, 40, 0.78), rgba(10, 20, 40, 0.58));
+      backdrop-filter: blur(20px);
+    }
+
+    .chat-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      background: rgba(10, 20, 40, 0.5);
+    }
+
+    .chat-header-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chat-header-icon svg {
+      width: 18px;
+      height: 18px;
+      color: var(--accent-warm);
+    }
+
+    .chat-header-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-header-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-header-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .chat-header-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .chat-header-badge.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .chat-header-badge.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .chat-close-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chat-close-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-white);
+    }
+
+    .chat-close-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Agent selector */
+    .chat-agent-selector {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: rgba(10, 20, 40, 0.3);
+    }
+
+    .chat-agent-selector label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-subtle);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .chat-agent-select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-white);
+      font-size: 0.82rem;
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='rgba(255,255,255,0.5)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+
+    .chat-agent-select option {
+      background: #1a2a44;
+      color: #fff;
+    }
+
+    /* Messages */
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .chat-empty-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-empty-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--text-subtle);
+    }
+
+    .chat-empty-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    .chat-samples {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      max-width: 260px;
+    }
+
+    .chat-sample-btn {
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .chat-sample-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-white);
+    }
+
+    .chat-sample-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .chat-msg {
+      max-width: 82%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chat-msg-user {
+      align-self: flex-end;
+      background: var(--accent-warm);
+      color: #1a1a1a;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-msg-bot {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-white);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-loading {
+      align-self: flex-start;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      gap: 5px;
+    }
+
+    .chat-loading-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+
+    .chat-loading-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .chat-loading-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes dotBounce {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+      }
+
+      30% {
+        transform: translateY(-6px);
+      }
+    }
+
+    /* Input */
+    .chat-input-area {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: rgba(10, 20, 40, 0.5);
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-white);
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-subtle);
+    }
+
+    .chat-input:focus {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .chat-input:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .chat-send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--accent-warm);
+      border: none;
+      color: #1a1a1a;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .chat-send-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .chat-send-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .chat-limit-msg {
+      text-align: center;
+      padding: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(239, 68, 68, 0.08);
+      border-radius: 8px;
+    }
+
+    /* Limit popup overlay */
+    .chat-limit-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: rgba(12, 24, 44, 0.92);
+      backdrop-filter: blur(8px);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px;
+    }
+
+    .chat-limit-overlay.open {
+      display: flex;
+    }
+
+    .chat-limit-overlay-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .chat-limit-overlay-icon svg {
+      width: 28px;
+      height: 28px;
+      color: var(--accent-warm);
+    }
+
+    .chat-limit-overlay h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-white);
+      margin-bottom: 8px;
+    }
+
+    .chat-limit-overlay p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 260px;
+    }
+
+    .chat-limit-overlay-btn {
+      padding: 10px 24px;
+      border-radius: 24px;
+      background: var(--accent-warm);
+      border: none;
+      color: #1a1a1a;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .chat-limit-overlay-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .chat-limit-overlay-dismiss {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .chat-limit-overlay-dismiss:hover {
+      color: var(--text-white);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1200px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content-layer {
+        min-height: auto;
+      }
+
+      .cloud-deco {
+        position: absolute;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .nav-links {
+        display: none;
+      }
+
+      .nav-menu-btn {
+        display: block;
+      }
+
+      .nav {
+        padding: 14px 24px;
+      }
+
+      .hotels-section {
+        padding: 0 24px;
+      }
+
+      .partners {
+        padding: 24px 24px 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cloud-deco {
+        display: none;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-title {
+        font-size: 1.8rem;
+      }
+
+      .hero-content {
+        padding: 20px 16px 16px;
+      }
+
+      .hero-subtitle {
+        font-size: 0.84rem;
+        margin-bottom: 20px;
+      }
+
+      .nav-location {
+        display: none;
+      }
+
+      .search-tab {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+      }
+
+      .hotels-section {
+        padding: 0 16px;
+      }
+
+      .card-image {
+        height: 160px;
+      }
+
+      .partners {
+        padding: 20px 16px 24px;
+      }
+
+      .partners-grid {
+        gap: 20px;
+      }
+
+      .partner {
+        font-size: 1rem;
+      }
+
+      .chat-window {
+        width: calc(100vw - 32px);
+        right: 16px;
+        bottom: 84px;
+        height: calc(100vh - 120px);
+        max-height: 520px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav {
+        padding: 12px 16px;
+      }
+
+      .nav-logo {
+        font-size: 1.25rem;
+      }
+
+      .btn-register {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 1.5rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.8rem;
+        max-width: 100%;
+      }
+
+      .search-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        justify-content: flex-start;
+      }
+
+      .search-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .search-tab {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+      }
+
+      .card-image {
+        height: 150px;
+      }
+
+      .card-body {
+        padding: 12px 14px 14px;
+      }
+
+      .card-name {
+        font-size: 0.92rem;
+      }
+
+      .card-price {
+        font-size: 1.2rem;
+      }
+
+      .partners-grid {
+        gap: 16px;
+      }
+
+      .partner {
+        font-size: 0.88rem;
+      }
+
+      /* Chat widget full screen on small mobile */
+      .chat-bubble {
+        width: auto;
+        min-width: 192px;
+        height: 56px;
+        left: 50%;
+        right: auto;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        border-radius: 999px;
+        padding: 0 22px;
+        gap: 10px;
+        background: rgba(10, 20, 40, 0.78);
+        border-color: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 16px 36px rgba(6, 12, 28, 0.32);
+        backdrop-filter: blur(16px);
+      }
+
+      .chat-bubble svg {
+        width: 18px;
+        height: 18px;
+        color: var(--accent-warm);
+      }
+
+      .chat-bubble:hover {
+        transform: translateX(-50%);
+      }
+
+      .chat-bubble-label {
+        display: inline-block;
+        font-size: 0.94rem;
+        font-weight: 600;
+        color: var(--text-white);
+        letter-spacing: 0.01em;
+      }
+
+      .chat-bubble.open {
+        display: none;
+      }
+
+      .chat-window {
+        inset: 0;
+        width: 100%;
+        top: 0;
+        right: 0;
+        bottom: auto;
+        left: 0;
+        height: var(--chat-mobile-vh);
+        max-height: var(--chat-mobile-vh);
+        border-radius: 0;
+      }
+
+      .chat-header {
+        padding-top: calc(12px + env(safe-area-inset-top, 0px));
+      }
+
+      .chat-input-area {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      }
+
+      .chat-agent-select,
+      .chat-input {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAGE BACKGROUND — replace /demo/bg.jpg with your own image, remove placeholder div -->
+  <div class="page-bg">
+    <img src="/demo/bg.jpg" alt="Background">
+    <div class="page-bg-placeholder"></div>
+  </div>
+
+  <!-- CLOUD DECORATIONS -->
+  <div class="cloud-deco cloud-left"></div>
+  <div class="cloud-deco cloud-left-2"></div>
+  <div class="cloud-deco cloud-right"></div>
+  <div class="cloud-deco cloud-right-2"></div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content-layer">
+
+    <nav class="nav">
+      <div class="nav-logo">VietVoyage</div>
+      <ul class="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#">Domestic Tours</a></li>
+        <li><a href="#">Destinations</a></li>
+        <li><a href="#">Experiences</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+      <div class="nav-right">
+        <div class="nav-location">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Vietnam
+        </div>
+        <button class="btn-register">Sign Up</button>
+        <button class="nav-menu-btn">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 12h18M3 6h18M3 18h18" />
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <h1 class="hero-title">Discover the Beauty of Vietnam From North to South.</h1>
+      <p class="hero-subtitle">Journey through Vietnam's most breathtaking destinations. From the mystical Ha Long Bay
+        to the romantic ancient town of Hoi An, from Sapa's terraced rice fields to the Mekong Delta — let us be your
+        guide.</p>
+      <div class="search-tabs">
+        <button class="search-tab active">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+          Tours
+        </button>
+        <button class="search-tab">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Homestay
+        </button>
+        <button class="search-tab">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          Experiences
+        </button>
+      </div>
+    </div>
+
+    <div class="hotels-section">
+      <div class="section-header">
+        <h2 class="section-title">Featured Tours in</h2>
+        <div class="section-location">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Vietnam
+        </div>
+      </div>
+      <div class="cards-grid">
+        <!-- Tour 1: Ha Long Bay -->
+        <div class="card">
+          <div class="card-image">
+            <img src="/demo/halong.jpg" alt="Ha Long Bay">
+            <div class="card-badge"><svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>4.9/5</div>
+            <div class="card-fav"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+              </svg></div>
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">Ha Long Bay — 3 Days 2 Nights</h3>
+            <p class="card-desc">Explore Ha Long Bay — a UNESCO World Heritage Site — aboard a 5-star cruise. Go
+              kayaking, visit Sung Sot Cave, and watch the sunset over the bay.</p>
+            <div class="card-tags">
+              <span class="card-tag"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>3 days</span>
+              <span class="card-tag">Cruise</span>
+              <span class="card-tag">Kayak</span>
+              <span class="card-tag">Meals</span>
+              <span class="card-tag">Guide</span>
+            </div>
+            <div class="card-price">$180<span>/person</span></div>
+          </div>
+        </div>
+        <!-- Tour 2: Sapa -->
+        <div class="card">
+          <div class="card-image">
+            <img src="/demo/sapa.jpg" alt="Sapa">
+            <div class="card-badge"><svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>4.8/5</div>
+            <div class="card-fav"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+              </svg></div>
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">Sapa — Fansipan 4 Days 3 Nights</h3>
+            <p class="card-desc">Trek the Muong Hoa terraced rice fields, conquer Fansipan Peak, explore H'Mong ethnic
+              villages, and savour highland cuisine.</p>
+            <div class="card-tags">
+              <span class="card-tag">4 days</span>
+              <span class="card-tag">Trekking</span>
+              <span class="card-tag">Homestay</span>
+              <span class="card-tag">Cable Car</span>
+              <span class="card-tag">Meals</span>
+            </div>
+            <div class="card-price">$128<span>/person</span></div>
+          </div>
+        </div>
+        <!-- Tour 3: Hoi An - Da Nang -->
+        <div class="card">
+          <div class="card-image">
+            <img src="/demo/hoian.jpg" alt="Hoi An">
+            <div class="card-badge"><svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>4.9/5</div>
+            <div class="card-fav"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+              </svg></div>
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">Da Nang — Hoi An 4 Days 3 Nights</h3>
+            <p class="card-desc">Stroll Hoi An Ancient Town by night, release lanterns on the Hoai River, visit Ba Na
+              Hills, and relax on the stunning My Khe Beach.</p>
+            <div class="card-tags">
+              <span class="card-tag">4 days</span>
+              <span class="card-tag">Ancient Town</span>
+              <span class="card-tag">Beach</span>
+              <span class="card-tag">Cuisine</span>
+              <span class="card-tag">4-star Hotel</span>
+            </div>
+            <div class="card-price">$232<span>/person</span></div>
+          </div>
+        </div>
+        <!-- Tour 4: Phu Quoc -->
+        <div class="card">
+          <div class="card-image">
+            <img src="/demo/phuquoc.png" alt="Phu Quoc">
+            <div class="card-badge"><svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>4.7/5</div>
+            <div class="card-fav"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+              </svg></div>
+          </div>
+          <div class="card-body">
+            <h3 class="card-name">Phu Quoc Paradise 3 Days 2 Nights</h3>
+            <p class="card-desc">Unwind on Phu Quoc Island, snorkel among coral reefs, explore VinWonders, and savour
+              fresh seafood at the Dinh Cau Night Market.</p>
+            <div class="card-tags">
+              <span class="card-tag">3 days</span>
+              <span class="card-tag">5-star Resort</span>
+              <span class="card-tag">Snorkeling</span>
+              <span class="card-tag">Seafood</span>
+            </div>
+            <div class="card-price">$276<span>/person</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="partners">
+      <div class="partners-grid">
+        <span class="partner">Vietnam Airlines</span>
+        <span class="partner">Vietravel</span>
+        <span class="partner">Saigontourist</span>
+        <span class="partner">Traveloka</span>
+        <span class="partner">Klook</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ============ CONFIGURATION ============
+    let AI_SERVICE_URL = '';  // Loaded dynamically from backend
+    let MOCK_MODE = false;    // Fallback when backend is unavailable
+    const TENANT_ID = 'root';
+    const DAILY_LIMIT = 20;
+    const THROTTLE_MS = 2000;
+    const STORAGE_KEY = 'flexsale_demo_usage';
+
+    // ============ MOCK DATA ============
+    const MOCK_AGENTS = [
+      { agent_id: 'mock-travel-agent', name: 'Travel Assistant', is_active: true },
+      { agent_id: 'mock-support-agent', name: 'Support Agent', is_active: true },
+    ];
+    const MOCK_RESPONSES = [
+      'Thank you for your interest! Our private tours range from $150-500/day depending on the destination and group size. Would you like me to help you plan a specific itinerary?',
+      'Great question! For Vietnam visa, most nationalities can apply for an e-visa online. The process takes about 3 business days. Would you like me to guide you through the steps?',
+      'Our tour packages typically include: hotel accommodation, local transportation, English-speaking guide, entrance fees, and selected meals. Would you like to see our most popular packages?',
+      'I\'d be happy to help! Could you tell me more about what you\'re looking for? For example, which destinations interest you, travel dates, and group size?',
+      'Vietnam is a wonderful destination! The best time to visit is between November and April. Popular routes include Hanoi → Ha Long Bay → Hoi An → Ho Chi Minh City.',
+    ];
+
+    // Fetch AI Service URL from backend config API
+    async function loadAIServiceUrl() {
+      // Try fetching from backend config (works when reverse proxy routes /api to backend)
+      try {
+        const res = await fetch('/api/public/config/ai-service-url');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            AI_SERVICE_URL = data.url.replace(/\/+$/, '');
+            return;
+          }
+        }
+      } catch (e) { }
+
+      // Fallback: read from meta tag if embedded by server
+      var meta = document.querySelector('meta[name="ai-service-url"]');
+      if (meta && meta.content) {
+        AI_SERVICE_URL = meta.content.replace(/\/+$/, '');
+        return;
+      }
+
+      console.error('Could not load AI service URL. Chat widget disabled.');
+    }
+    const SAMPLE_QUESTIONS = [
+      'How much does a private tour cost?',
+      'I need help with Vietnam visa.',
+      'What\'s included in your tour packages?',
+    ];
+
+    // ============ STATE ============
+    let agents = [];
+    let selectedAgent = null;
+    let messages = [];
+    let chatHistory = [];
+    let isLoading = false;
+    let isSendDisabled = false;
+    let isOpen = false;
+    let currentRequestId = 0;
+    let usageCount = 0;
+
+    // ============ USAGE TRACKING ============
+    function getDailyUsage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          const today = new Date().toISOString().slice(0, 10);
+          if (data.date === today) return data;
+        }
+      } catch (e) { }
+      return { date: new Date().toISOString().slice(0, 10), count: 0 };
+    }
+
+    function incrementUsage() {
+      const usage = getDailyUsage();
+      usage.count += 1;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(usage));
+      return usage.count;
+    }
+
+    // ============ API ============
+    async function fetchAgents() {
+      if (MOCK_MODE) return MOCK_AGENTS;
+      const res = await fetch(AI_SERVICE_URL + '/tenant/' + encodeURIComponent(TENANT_ID) + '/agents');
+      if (!res.ok) throw new Error('Failed to load agents');
+      const data = await res.json();
+      return (data.agents || []).filter(function (a) { return a.is_active; });
+    }
+
+    async function sendChatAPI(agentId, message, history) {
+      if (MOCK_MODE) {
+        await new Promise(function (r) { setTimeout(r, 800 + Math.random() * 700); });
+        var reply = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
+        return { response: [reply] };
+      }
+      const res = await fetch(AI_SERVICE_URL + '/webhook/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tenant_id: TENANT_ID,
+          agent_id: agentId,
+          message: message,
+          history: history,
+        }),
+      });
+      if (!res.ok) throw new Error('Chat request failed');
+      return await res.json();
+    }
+
+    // ============ DOM REFS ============
+    let bubbleEl, windowEl, headerNameEl, headerBadgeEl, agentSelectEl,
+      messagesEl, inputEl, sendBtnEl, limitOverlayEl;
+    let mobileScrollLockY = 0;
+    let touchStartY = 0;
+
+    // ============ CREATE DOM ============
+    function createWidget() {
+      // Bubble
+      bubbleEl = document.createElement('div');
+      bubbleEl.className = 'chat-bubble';
+      bubbleEl.innerHTML = '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="chat-bubble-label">Plan your trip</span>';
+      bubbleEl.addEventListener('click', toggleChat);
+
+      // Window
+      windowEl = document.createElement('div');
+      windowEl.className = 'chat-window';
+      windowEl.innerHTML = [
+        '<div class="chat-top">',
+        // Header
+        '<div class="chat-header">',
+        '<div class="chat-header-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg></div>',
+        '<div class="chat-header-info"><div class="chat-header-name" id="chat-header-name">AI Agent</div><div class="chat-header-sub">Demo chat</div></div>',
+        '<span class="chat-header-badge" id="chat-header-badge"></span>',
+        '<button class="chat-close-btn" id="chat-close-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>',
+        '</div>',
+        // Agent selector
+        '<div class="chat-agent-selector">',
+        '<label>Select AI Agent</label>',
+        '<select class="chat-agent-select" id="chat-agent-select"></select>',
+        '</div>',
+        '</div>',
+        // Messages
+        '<div class="chat-messages" id="chat-messages"></div>',
+        // Input
+        '<div class="chat-input-area">',
+        '<div class="chat-input-row">',
+        '<input class="chat-input" id="chat-input" type="text" placeholder="Type a message..." />',
+        '<button class="chat-send-btn" id="chat-send-btn"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>',
+        '</div>',
+        '</div>',
+        // Limit overlay
+        '<div class="chat-limit-overlay" id="chat-limit-overlay">',
+        '<div class="chat-limit-overlay-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>',
+        '<h3>Daily limit reached</h3>',
+        '<p>You have used all ' + DAILY_LIMIT + ' free chats for today. Come back tomorrow or create an account for the full experience.</p>',
+        '<button class="chat-limit-overlay-btn" onclick="window.open(\'/sign-up\',\'_blank\')">Create a free account</button>',
+        '<button class="chat-limit-overlay-dismiss" id="chat-limit-dismiss">Maybe later</button>',
+        '</div>',
+      ].join('');
+
+      document.body.appendChild(bubbleEl);
+      document.body.appendChild(windowEl);
+
+      // Cache refs
+      headerNameEl = document.getElementById('chat-header-name');
+      headerBadgeEl = document.getElementById('chat-header-badge');
+      agentSelectEl = document.getElementById('chat-agent-select');
+      messagesEl = document.getElementById('chat-messages');
+      inputEl = document.getElementById('chat-input');
+      sendBtnEl = document.getElementById('chat-send-btn');
+      limitOverlayEl = document.getElementById('chat-limit-overlay');
+
+      // Events
+      document.getElementById('chat-close-btn').addEventListener('click', toggleChat);
+      document.getElementById('chat-limit-dismiss').addEventListener('click', function () {
+        limitOverlayEl.classList.remove('open');
+      });
+      agentSelectEl.addEventListener('change', handleAgentChange);
+      sendBtnEl.addEventListener('click', handleSend);
+      inputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      });
+      inputEl.addEventListener('touchend', function (e) {
+        if (!isMobileFullScreenChat()) return;
+        e.preventDefault();
+        focusInputWithoutPageScroll();
+      }, { passive: false });
+      inputEl.addEventListener('focus', handleInputFocus);
+    }
+
+    function isMobileFullScreenChat() {
+      return window.matchMedia('(max-width: 480px)').matches;
+    }
+
+    function syncMobileChatViewport() {
+      var viewport = window.visualViewport;
+      var height = viewport ? viewport.height : window.innerHeight;
+      document.documentElement.style.setProperty('--chat-mobile-vh', height + 'px');
+    }
+
+    function focusInputWithoutPageScroll() {
+      if (!inputEl) return;
+      try {
+        inputEl.focus({ preventScroll: true });
+      } catch (e) {
+        inputEl.focus();
+      }
+    }
+
+    function lockBodyScrollForChat() {
+      if (!isMobileFullScreenChat() || !isOpen || document.body.classList.contains('chat-open-mobile')) {
+        return;
+      }
+      mobileScrollLockY = window.scrollY || window.pageYOffset || 0;
+      document.documentElement.classList.add('chat-open-mobile');
+      document.body.classList.add('chat-open-mobile');
+    }
+
+    function unlockBodyScrollForChat() {
+      if (!document.body.classList.contains('chat-open-mobile') && !document.documentElement.classList.contains('chat-open-mobile')) {
+        return;
+      }
+      document.documentElement.classList.remove('chat-open-mobile');
+      document.body.classList.remove('chat-open-mobile');
+      window.scrollTo(0, mobileScrollLockY);
+    }
+
+    function maintainMobileScrollLock() {
+      if (!isOpen || !isMobileFullScreenChat()) return;
+      var currentY = window.scrollY || window.pageYOffset || 0;
+      if (currentY !== mobileScrollLockY) {
+        window.scrollTo(0, mobileScrollLockY);
+      }
+    }
+
+    function handleDocumentTouchStart(e) {
+      if (!isOpen || !isMobileFullScreenChat() || !e.touches || e.touches.length === 0) {
+        return;
+      }
+      touchStartY = e.touches[0].clientY;
+    }
+
+    function handleDocumentTouchMove(e) {
+      if (!isOpen || !isMobileFullScreenChat()) return;
+      if (!messagesEl || !messagesEl.contains(e.target)) {
+        e.preventDefault();
+        return;
+      }
+
+      if (!e.touches || e.touches.length === 0) return;
+      var currentY = e.touches[0].clientY;
+      var deltaY = currentY - touchStartY;
+      var atTop = messagesEl.scrollTop <= 0;
+      var atBottom = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 1;
+
+      if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+        e.preventDefault();
+      }
+    }
+
+    function syncChatLayout() {
+      syncMobileChatViewport();
+      if (!windowEl) return;
+      if (isOpen && isMobileFullScreenChat()) {
+        lockBodyScrollForChat();
+        var viewport = window.visualViewport;
+        var height = viewport ? viewport.height : window.innerHeight;
+        windowEl.style.top = '0';
+        windowEl.style.height = height + 'px';
+        windowEl.style.maxHeight = height + 'px';
+        windowEl.style.bottom = 'auto';
+        return;
+      }
+      windowEl.style.top = '';
+      windowEl.style.height = '';
+      windowEl.style.maxHeight = '';
+      windowEl.style.bottom = '';
+      unlockBodyScrollForChat();
+    }
+
+    function handleInputFocus() {
+      if (!isMobileFullScreenChat()) return;
+      syncChatLayout();
+      setTimeout(function () {
+        syncChatLayout();
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }, 120);
+    }
+
+    // ============ TOGGLE ============
+    function toggleChat() {
+      isOpen = !isOpen;
+      windowEl.classList.toggle('open', isOpen);
+      bubbleEl.classList.toggle('open', isOpen);
+      syncChatLayout();
+      if (isOpen && agents.length === 0) {
+        loadAgents();
+      }
+    }
+
+    // ============ LOAD AGENTS ============
+    async function loadAgents() {
+      renderEmpty('Loading...');
+      try {
+        agents = await fetchAgents();
+        if (agents.length === 0) {
+          renderEmpty('No AI agents available.');
+          return;
+        }
+        // Populate select
+        agentSelectEl.innerHTML = '';
+        agents.forEach(function (agent) {
+          var opt = document.createElement('option');
+          opt.value = agent.agent_id;
+          opt.textContent = agent.name;
+          agentSelectEl.appendChild(opt);
+        });
+        selectedAgent = agents[0];
+        updateHeader();
+        renderMessages();
+      } catch (e) {
+        renderEmpty('Could not connect. Please try again later.');
+      }
+    }
+
+    // ============ AGENT CHANGE ============
+    function handleAgentChange() {
+      var agentId = agentSelectEl.value;
+      selectedAgent = agents.find(function (a) { return a.agent_id === agentId; }) || null;
+      messages = [];
+      chatHistory = [];
+      updateHeader();
+      renderMessages();
+    }
+
+    // ============ UPDATE HEADER ============
+    function updateHeader() {
+      if (selectedAgent) {
+        headerNameEl.textContent = selectedAgent.name;
+      }
+      var remaining = DAILY_LIMIT - usageCount;
+      headerBadgeEl.textContent = remaining + '/' + DAILY_LIMIT + ' left';
+      headerBadgeEl.className = 'chat-header-badge';
+      if (remaining <= 0) {
+        headerBadgeEl.classList.add('danger');
+      } else if (remaining <= 3) {
+        headerBadgeEl.classList.add('warning');
+      }
+    }
+
+    // ============ RENDER ============
+    function renderEmpty(text) {
+      messagesEl.innerHTML = [
+        '<div class="chat-empty">',
+        '<div class="chat-empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>',
+        '<div class="chat-empty-text">' + text + '</div>',
+        '</div>',
+      ].join('');
+    }
+
+    function renderMessages() {
+      if (messages.length === 0 && !isLoading) {
+        var isLimitReached = usageCount >= DAILY_LIMIT;
+        var samplesHtml = SAMPLE_QUESTIONS.map(function (q) {
+          return '<button class="chat-sample-btn" ' + (isLimitReached ? 'disabled' : '') + ' onclick="sendMessage(\'' + q.replace(/'/g, "\\'") + '\')">' + q + '</button>';
+        }).join('');
+        messagesEl.innerHTML = [
+          '<div class="chat-empty">',
+          '<div class="chat-empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>',
+          '<div class="chat-empty-text">Send a message or pick a suggested question to get started</div>',
+          '<div class="chat-samples">' + samplesHtml + '</div>',
+          '</div>',
+        ].join('');
+        return;
+      }
+
+      var html = '';
+      messages.forEach(function (msg) {
+        var cls = msg.role === 'user' ? 'chat-msg chat-msg-user' : 'chat-msg chat-msg-bot';
+        html += '<div class="' + cls + '">' + escapeHtml(msg.content) + '</div>';
+      });
+
+      if (isLoading) {
+        html += '<div class="chat-loading"><div class="chat-loading-dot"></div><div class="chat-loading-dot"></div><div class="chat-loading-dot"></div></div>';
+      }
+
+      messagesEl.innerHTML = html;
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ============ SEND MESSAGE ============
+    var lastSendTime = 0;
+
+    async function sendMessage(text) {
+      if (!text || !text.trim() || !selectedAgent) return;
+
+      var now = Date.now();
+      if (now - lastSendTime < 500) return;
+      lastSendTime = now;
+
+      if (usageCount >= DAILY_LIMIT) {
+        limitOverlayEl.classList.add('open');
+        return;
+      }
+
+      // Cancel previous pending request
+      var requestId = ++currentRequestId;
+
+      usageCount = incrementUsage();
+      updateHeader();
+
+      var userMsg = { role: 'user', content: text.trim() };
+      messages.push(userMsg);
+      chatHistory.push('User: ' + userMsg.content);
+      inputEl.value = '';
+      isLoading = true;
+      updateInputState();
+      renderMessages();
+
+      try {
+        var result = await sendChatAPI(selectedAgent.agent_id, userMsg.content, chatHistory);
+
+        // If a newer request was fired, discard this response
+        if (requestId !== currentRequestId) return;
+
+        var responses = result.response || [];
+        var fullText = responses.join('\n\n');
+        chatHistory.push('Assistant: ' + fullText);
+
+        // Display each response message with a 1-second delay between them
+        for (var i = 0; i < responses.length; i++) {
+          if (requestId !== currentRequestId) return;
+          if (i > 0) {
+            await new Promise(function (resolve) { setTimeout(resolve, 1000); });
+            if (requestId !== currentRequestId) return;
+          }
+          messages.push({ role: 'assistant', content: responses[i] });
+          renderMessages();
+        }
+      } catch (e) {
+        if (requestId !== currentRequestId) return;
+        messages.push({ role: 'assistant', content: 'Sorry, something went wrong. Please try again.' });
+        renderMessages();
+      } finally {
+        if (requestId === currentRequestId) {
+          isLoading = false;
+          updateInputState();
+          renderMessages();
+          focusInputWithoutPageScroll();
+        }
+      }
+    }
+
+    function handleSend() {
+      sendMessage(inputEl.value);
+    }
+
+    function updateInputState() {
+      inputEl.disabled = false;
+      sendBtnEl.disabled = false;
+      if (usageCount >= DAILY_LIMIT) {
+        inputEl.disabled = true;
+        inputEl.placeholder = 'Daily limit reached';
+        sendBtnEl.disabled = true;
+      }
+    }
+
+    // ============ INIT ============
+    async function init() {
+      await loadAIServiceUrl();
+      if (!AI_SERVICE_URL) {
+        console.warn('Backend unavailable — running in mock mode.');
+        MOCK_MODE = true;
+      }
+      usageCount = getDailyUsage().count;
+      createWidget();
+      updateHeader();
+      syncChatLayout();
+      if (isMobileFullScreenChat()) {
+        return;
+      }
+      // Auto-open chat on page load
+      isOpen = true;
+      windowEl.classList.add('open');
+      bubbleEl.classList.add('open');
+      syncChatLayout();
+      loadAgents();
+    }
+
+    // Search tabs
+    document.querySelectorAll('.search-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.search-tab').forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+      });
+    });
+
+    window.addEventListener('scroll', maintainMobileScrollLock, { passive: true });
+    window.addEventListener('resize', syncChatLayout);
+    window.addEventListener('orientationchange', syncChatLayout);
+    document.addEventListener('touchstart', handleDocumentTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleDocumentTouchMove, { passive: false });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncChatLayout);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
